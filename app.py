@@ -20,7 +20,7 @@ from langchain.embeddings.base import Embeddings
 load_dotenv()
 
 # Set the page configuration as the first Streamlit command
-st.set_page_config(page_title="PDF Query with LangChain")
+st.set_page_config(page_title="Company’s Annual Report Analysis Platform")
 
 # Custom Embeddings class for Google GenAI
 class GoogleGenAIEmbeddings(Embeddings):
@@ -131,7 +131,14 @@ def main():
                     submit_button = st.form_submit_button("Register")
 
                     if submit_button:
-                        if new_password != confirm_password:
+                        if not new_username.strip() or not new_password.strip() or not confirm_password.strip() or not email.strip() or not name.strip():
+                            st.warning("Please fill in all the fields!")
+                        elif new_username in config['credentials']['usernames']:
+                            st.warning("Username already exists. Please choose a different username.")
+                        # Check if the email is already registered
+                        elif email in [config['credentials']['usernames'][user].get('email') for user in config['credentials']['usernames'] if 'email' in config['credentials']['usernames'][user]]:
+                            st.warning("Email is already registered. Please use a different email or log in.")
+                        elif new_password != confirm_password:
                             st.warning("Passwords do not match!")
                         else:
                             hashed_password = stauth.Hasher([new_password]).generate()[0]
